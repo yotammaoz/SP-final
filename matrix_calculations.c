@@ -160,3 +160,15 @@ int *getIndicesOfLargestAbsoluteValueInOffDiagonal(int n, double **matrix)
     }
     return indices;
 }
+
+
+// TODO: add functions:
+int run_eigengap_heuristic(double * eigenvalues)
+{
+    return 0;
+}
+
+double **get_t_matrix(double ** eigen_matrix, int k)
+{
+    return eigen_matrix;
+}

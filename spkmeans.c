@@ -4,12 +4,9 @@
 #include <string.h>
 #include <stdbool.h>
 #include "useful.h"
-#include "useful.c"
 #include "matrix_calculations.h"
-#include "matrix_calculations.c"
 #include "jacobi.h"
-#include "jacobi.c"
-
+#include "spkmeans.h"
 
 const char *WAM = "wam";
 const char *DDG = "ddg";
@@ -17,22 +14,10 @@ const char *LNORM = "lnorm";
 const char *JACOBI = "jacobi";
 const int MAXDIM = 200;
 
-int get_dimension_from_file(char *filename);
-int get_num_of_points_from_file(char *filename);
-void read_data_from_input_file_to_matrix(double **mat, char *filename);
-void print_mat(int d, int n, double **mat);
-
 int main(int argc, char *argv[]) 
 {
-    char *goal;
     char *file_name;
-    int dimension;
-    int num_of_points;
-    double **points_mat;
-    double **wam;
-    double **ddm;
-    double **norm_lap;
-    double **jacobi_res;
+    char *goal;
 
     if (argc!=3)
     {
@@ -42,9 +27,51 @@ int main(int argc, char *argv[])
     goal = argv[1]; 
     file_name = argv[2];
 
-    if ((strcmp(goal,WAM)!=0)&&(strcmp(goal,DDG)!=0)&&(strcmp(goal,LNORM)!=0)&&((strcmp(goal,JACOBI)!=0)))
+    if ((strcmp(goal,WAM)!=0)&&(strcmp(goal,DDG)!=0)&&(strcmp(goal,LNORM)!=0)&&((strcmp(goal,JACOBI)!=0))) {
         invalid_input(); /* if the goal is not one of the specified options, raise invalid_input */
+    }
 
+    run_goal(goal, file_name);
+    return 0;
+}
+
+struct k_n_and_t_matrix *calc_k_n_and_t(char *file_name, int k)
+{
+    int dimension;
+    int num_of_points;
+    double **points_mat;
+    double **wam;
+    double **ddm;
+    double **norm_lap;
+    double **jacobi_res;
+    struct k_n_and_t_matrix * res;
+    dimension = get_dimension_from_file(file_name); /* get the dimension of the points i.e. the num of features */
+    num_of_points = get_num_of_points_from_file(file_name); /* get the num of points */
+    points_mat = allocate_memory_array_of_points(dimension,num_of_points);
+    read_data_from_input_file_to_matrix(points_mat, file_name);
+    wam = createWeightedAdjacencyMatrix(num_of_points,dimension,points_mat);
+    ddm = createDiagonalDegreeMatrix(num_of_points,wam);
+    norm_lap = createNormalizedGraphLaplacian(num_of_points,ddm,wam);
+    jacobi_res = jacobi_alg(num_of_points,norm_lap); /* this runs the jacobi algorithm from jacobi.c */
+    res =  malloc(sizeof(struct k_n_and_t_matrix));
+    if (k == 0) {
+        k = run_eigengap_heuristic(jacobi_res[0]);
+    }
+    res->k=k;
+    res->n=num_of_points;
+    res->t_matrix = get_t_matrix(jacobi_res, k);
+    return res;
+}
+
+void run_goal(char *file_name, char *goal)
+{
+    int dimension;
+    int num_of_points;
+    double **points_mat;
+    double **wam;
+    double **ddm;
+    double **norm_lap;
+    double **jacobi_res;
     dimension = get_dimension_from_file(file_name); /* get the dimension of the points i.e. the num of features */
     num_of_points = get_num_of_points_from_file(file_name); /* get the num of points */
 
@@ -55,14 +82,14 @@ int main(int argc, char *argv[])
     read_data_from_input_file_to_matrix(points_mat, file_name);
     /* reads the input points into points_mat */
 
-    
+
     if (strcmp(goal,WAM) == 0)  /* goal was wam */
     {
         wam = createWeightedAdjacencyMatrix(num_of_points,dimension,points_mat);
         print_mat(num_of_points,num_of_points,wam);
-        free_matrix(wam);        
+        free_matrix(wam);
     }
-    
+
     if (strcmp(goal,DDG)==0) /* goal was ddg */
     {
         wam = createWeightedAdjacencyMatrix(num_of_points,dimension,points_mat);
@@ -92,10 +119,7 @@ int main(int argc, char *argv[])
     }
 
     free_matrix(points_mat);
-
-    return 0;
 }
-
 
 
 int get_dimension_from_file(char *filename)
@@ -143,7 +167,6 @@ int get_num_of_points_from_file(char *filename)
     fclose(input_file);
     return res;
 }
-
 
 
 void read_data_from_input_file_to_matrix(double **mat, char *filename)

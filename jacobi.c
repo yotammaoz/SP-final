@@ -1,19 +1,15 @@
 #include "math.h"
 #include "stdlib.h"
 #include "stdio.h"
+#include "useful.h"
+#include "matrix_calculations.h"
+#include "jacobi.h"
 
 #define MIN(X,Y) (((X)<(Y))?(X):(Y)) /* macros for min and max */
 #define MAX(X,Y) (((X)<(Y))?(Y):(X))
 
 const int MAX_ROTATION = 100;
 const double EPSILON = 0.00001;
-
-
-double **jacobi_alg(int n, double **matrix);
-double calcOff(double **matrix, int n);
-double *get_c_and_s_at_ij(int n,double **matrix, int i, int j);
-double **get_rotation_mat(int n, int i, int j, double c, double s);
-void print_mat(int d, int n, double **mat);
 
 
 /* preforms the jacobi algorithm on the nXn real symmetric matrix - matrix */

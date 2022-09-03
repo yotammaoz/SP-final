@@ -17,4 +17,6 @@ double **multipleFromBothSides(int n, double** matrixA, double ** matrixP);
 int *getIndicesOfLargestAbsoluteValueInOffDiagonal(int n, double **matrix);
 double *obtainCAndT(int n, double **matrix, int pivotI, int pivotJ);
 double **getUnitMatrix(int n);
+int run_eigengap_heuristic(double *);
+double **get_t_matrix(double **, int);
 #endif 

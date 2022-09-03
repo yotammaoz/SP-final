@@ -2,8 +2,22 @@
 #include "stdlib.h"
 #include <ctype.h>
 #include <stdio.h>
+#include "useful.h"
 #define PY_SSIZE_T_CLEAN
 
+/* prints "Invalid Input!" and exits */
+void invalid_input()
+{
+    printf("Invalid Input!");
+    exit(1);
+}
+
+/* prints "An Error Has Occurred" and exits */
+void error()
+{
+    printf("An Error Has Occurred");
+    exit(1);
+}
 
 double euclidean_norm_powered(int d, double *p1, double *p2)
 /* calculates the l2 distance to the second power between points p1 and p2 */
@@ -62,17 +76,4 @@ int sign(double num) {
     return -1;
 }
 
-/* prints "Invalid Input!" and exits */
-void invalid_input()
-{
-    printf("Invalid Input!");
-    exit(1);
-}
-
-/* prints "An Error Has Occurred" and exits */
-void error()
-{
-    printf("An Error Has Occurred");
-    exit(1);
-}
 
