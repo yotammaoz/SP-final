@@ -74,3 +74,4 @@ int check_convergence(int d, int k, double epsilon, double **centroids, double *
     }
     return 1;
 }
+
